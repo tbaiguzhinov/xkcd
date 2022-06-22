@@ -21,5 +21,5 @@ Python3 должен быть уже установлен.
 ## Как получить токен ключ API VK
 
 Вставьте в адресную строку браузера url:  
-```https://oauth.vk.com/authorize?client_id=0000000&scope=photos,groups,wall,offline&response_type=token```
+```https://oauth.vk.com/authorize?client_id=0000000&scope=photos,groups,wall,offline&response_type=token```  
 где вместо client_id укажите номер ID Вашего приложения (его можно найти в разделе "Редактировать" > "Настройки" в Вашем приложении).
