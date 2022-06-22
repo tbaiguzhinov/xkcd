@@ -73,11 +73,11 @@ def upload_image(upload_url, file_name):
     with open(file_name, "rb") as file:
         files = {'photo': file}
         response = requests.post(url=upload_url, files=files)
-    response.raise_for_status()
-    response_content = response.json()
-    return response_content["photo"], \
-        response_content["server"], \
-        response_content["hash"]
+    check_for_error_in_response(response)
+    upload_img_information = response.json()
+    return upload_img_information["photo"], \
+        upload_img_information["server"], \
+        upload_img_information["hash"]
 
 
 def save_wall_photo(vk_api_token, photo, server, hash, group_id):
@@ -105,7 +105,7 @@ def save_wall_photo(vk_api_token, photo, server, hash, group_id):
         "https://api.vk.com/method/photos.saveWallPhoto",
         params=params
     )
-    response.raise_for_status()
+    check_for_error_in_response(response)
     image_information = response.json()["response"][0]
     return image_information["id"], image_information["owner_id"]
 
@@ -134,7 +134,7 @@ def make_wall_post(vk_api_token, group_id, message, owner_id, photo_id):
         "https://api.vk.com/method/wall.post",
         params=params
     )
-    response.raise_for_status()
+    check_for_error_in_response(response)
     return response.json()["response"]["post_id"]
 
 
