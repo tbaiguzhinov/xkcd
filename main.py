@@ -1,9 +1,22 @@
 import os
 import random
+import logging
+from urllib.error import HTTPError
 from urllib.parse import urlparse
 
 import requests
 from dotenv import load_dotenv
+
+
+class VK_API_Error(Exception):
+    pass
+
+
+def check_for_error_in_response(response):
+    response.raise_for_status()
+    data = response.json()
+    if "error" in data:
+        raise VK_API_Error(data["error"]["error_msg"])
 
 
 def get_xkcd_comics(comics_number):
@@ -42,7 +55,7 @@ def get_upload_server(vk_api_token, group_id):
         "https://api.vk.com/method/photos.getWallUploadServer",
         params=params
     )
-    response.raise_for_status()
+    check_for_error_in_response(response)
     return response.json()["response"]["upload_url"]
 
 
@@ -93,8 +106,8 @@ def save_wall_photo(vk_api_token, photo, server, hash, group_id):
         params=params
     )
     response.raise_for_status()
-    full_response = response.json()["response"][0]
-    return full_response["id"], full_response["owner_id"]
+    image_information = response.json()["response"][0]
+    return image_information["id"], image_information["owner_id"]
 
 
 def make_wall_post(vk_api_token, group_id, message, owner_id, photo_id):
@@ -145,17 +158,21 @@ def main():
     group_id = os.getenv("VK_GROUP_ID")
     top_number = get_total_comics_num()
     comment, file_name = get_xkcd_comics(random.randint(1, top_number))
-    upload_url = get_upload_server(vk_api_key, group_id)
-    photo, server, hash = upload_image(upload_url, file_name)
-    photo_id, owner_id = save_wall_photo(
-        vk_api_key,
-        photo,
-        server,
-        hash,
-        group_id
-    )
-    make_wall_post(vk_api_key, group_id, comment, owner_id, photo_id)
-    os.remove(file_name)
+    try:
+        upload_url = get_upload_server(vk_api_key, group_id)
+        photo, server, hash = upload_image(upload_url, file_name)
+        photo_id, owner_id = save_wall_photo(
+            vk_api_key,
+            photo,
+            server,
+            hash,
+            group_id
+        )
+        make_wall_post(vk_api_key, group_id, comment, owner_id, photo_id)
+    except (HTTPError, ConnectionError, VK_API_Error) as err:
+        logging.error(err)
+    finally:
+        os.remove(file_name)
 
 
 if __name__ == "__main__":
