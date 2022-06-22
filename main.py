@@ -17,8 +17,9 @@ def get_xkcd_comics(comics_number):
     """
     response = requests.get(f"https://xkcd.com/{comics_number}/info.0.json")
     response.raise_for_status()
-    comment = response.json()["alt"]
-    image_link = response.json()["img"]
+    comics_info = response.json()
+    comment = comics_info["alt"]
+    image_link = comics_info["img"]
     file_name = urlparse(image_link).path.rpartition('/')[-1]
     response = requests.get(image_link)
     response.raise_for_status()
