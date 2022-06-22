@@ -80,14 +80,14 @@ def upload_image(upload_url, file_name):
         upload_img_information["hash"]
 
 
-def save_wall_photo(vk_api_token, photo, server, hash, group_id):
+def save_wall_photo(vk_api_token, photo, server, image_hash, group_id):
     """Save wall photo in VK.
 
     ACCEPTS:
         vk_api_token (str): VK API token
         photo (str): Information about uploaded image
         server (str): Server id
-        hash (str): Image hash
+        image_hash (str): Image hash
         group_id (str): VK Group id number
     RETURNS:
         (str): Image id
@@ -98,7 +98,7 @@ def save_wall_photo(vk_api_token, photo, server, hash, group_id):
         "v": "5.131",
         "photo": photo,
         "server": server,
-        "hash": hash,
+        "hash": image_hash,
         "group_id": group_id
     }
     response = requests.post(
@@ -160,12 +160,12 @@ def main():
     comment, file_name = get_xkcd_comics(random.randint(1, top_number))
     try:
         upload_url = get_upload_server(vk_api_key, group_id)
-        photo, server, hash = upload_image(upload_url, file_name)
+        photo, server, image_hash = upload_image(upload_url, file_name)
         photo_id, owner_id = save_wall_photo(
             vk_api_key,
             photo,
             server,
-            hash,
+            image_hash,
             group_id
         )
         make_wall_post(vk_api_key, group_id, comment, owner_id, photo_id)
