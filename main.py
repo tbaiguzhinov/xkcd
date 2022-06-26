@@ -13,10 +13,11 @@ class VK_API_Error(Exception):
 
 
 def check_for_error_in_response(response):
+    """Check for error in response."""
     response.raise_for_status()
-    data = response.json()
-    if "error" in data:
-        raise VK_API_Error(data["error"]["error_msg"])
+    payload = response.json()
+    if "error" in payload:
+        raise VK_API_Error(payload["error"]["error_msg"])
 
 
 def get_xkcd_comics(comics_number):
@@ -30,9 +31,9 @@ def get_xkcd_comics(comics_number):
     """
     response = requests.get(f"https://xkcd.com/{comics_number}/info.0.json")
     response.raise_for_status()
-    comics_info = response.json()
-    comment = comics_info["alt"]
-    image_link = comics_info["img"]
+    payload = response.json()
+    comment = payload["alt"]
+    image_link = payload["img"]
     file_name = urlparse(image_link).path.rpartition('/')[-1]
     response = requests.get(image_link)
     response.raise_for_status()
@@ -74,10 +75,8 @@ def upload_image(upload_url, file_name):
         files = {'photo': file}
         response = requests.post(url=upload_url, files=files)
     check_for_error_in_response(response)
-    upload_img_information = response.json()
-    return upload_img_information["photo"], \
-        upload_img_information["server"], \
-        upload_img_information["hash"]
+    payload = response.json()
+    return payload["photo"], payload["server"], payload["hash"]
 
 
 def save_wall_photo(vk_api_token, photo, server, image_hash, group_id):
@@ -106,8 +105,8 @@ def save_wall_photo(vk_api_token, photo, server, image_hash, group_id):
         params=params
     )
     check_for_error_in_response(response)
-    image_information = response.json()["response"][0]
-    return image_information["id"], image_information["owner_id"]
+    payload = response.json()["response"][0]
+    return payload["id"], payload["owner_id"]
 
 
 def make_wall_post(vk_api_token, group_id, message, owner_id, photo_id):
